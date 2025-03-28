@@ -1,0 +1,43 @@
+
+name: Build e Testes com Maven
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: 🛎️ Checkout do código
+        uses: actions/checkout@v3
+
+      - name: ☕️ Configurar JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # OpenJDK da Eclipse Foundation
+          java-version: '17'
+          cache: 'maven'
+
+      - name: 📦 Compilar o projeto
+        run: mvn clean compile
+
+      - name: 🧪 Executar testes
+        run: mvn verify # Melhor que 'mvn test', pois inclui testes de integração
+
+      - name: 🚀 Construir o artefato
+        run: mvn package -DskipTests
+
+      - name: 💾 Salvar artefato (JAR)
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-jar
+          path: target/*.jar
